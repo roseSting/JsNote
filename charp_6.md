@@ -1161,7 +1161,10 @@ class User {
 }
 
 const user = new User(123);
-user.getId();
+user.getId();   //123
 user.setId(456);
-user.getId();
+user.getId();   //456
+
+// 并不是真正私有的
+console.log(wm.get(user)[user.idProperty]);   //456
 ```
