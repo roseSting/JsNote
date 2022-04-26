@@ -404,7 +404,7 @@ colors.slice(3, 4);
 
 ### 搜索和位置方法
 
-##### 严格相等
+**严格相等** 
 
 `indexOf()` 方法从数组前头(第一项)开始向后搜索。返回元素在数组中的位置，如果没找到则返回-1。
 `lastIdexOf()` 从数组末尾（最后一项）开始向前搜索。返回元素在数组中的位置，如果没找到则返回-1。
@@ -417,7 +417,7 @@ numbers.lastIndexOf(4); //5
 numbers.includes(4); //true
 ```
 
-#### 断言函数
+**断言函数** 
 
 `find()` 返回第一个匹配的元素。
 `findIndex()` 返回第一个匹配元素的索引。
@@ -547,7 +547,7 @@ secondHalfDataView.byteLength;
 secondHalfDataView.buffer === buf;
 ```
 
-#### ElementType
+**ElementType** 
 
 DataView 对存储在缓冲内的数据类型没有预设。
 
@@ -577,7 +577,7 @@ view.setUint8(0, 0xFF);
 view.getInt16(0);
 ```
 
-#### 字节序
+**字节序** 
 
 字节序指的是计算机系统维护的一种字节顺序的约定。
 
@@ -623,7 +623,7 @@ view.getUint8(0);
 view.getUint8(1);
 ```
 
-#### 边界情形
+**边界情形** 
 
 DataView完成读、写操作的前提是必须有充足的缓冲区，否则就会抛出RangeError:
 
@@ -732,7 +732,7 @@ alert(ints[2]); //0
 alert(ints[3]); //0
 ```
 
-#### 定型数组行为
+**定型数组行为**
 
 返回新数组的方法也会返回包含同样元素类型的新定型数组：
 
@@ -752,7 +752,7 @@ for (const int of ints) {
 Math.max(...ints); //3
 ```
 
-#### 合并、复制和修改定型数组
+**合并、复制和修改定型数组**
 
 set()从提供的数组或定型数组中把值复制到当前定型数组中指定的索引位置。
 
@@ -797,7 +797,7 @@ console.log(concatArray); //[1, 2, 3, 4, 5, 6, 7, 8, 9]
 console.log(concatArray instanceof Int32Array) //true
 ```
 
-#### 上溢和下溢
+**上溢和下溢**
 
 ```js
 //长度为2的有符号整数数组
@@ -937,7 +937,7 @@ m.get(b); //'foo'
 m.get(nz); //'bar'
 ```
 
-#### 顺序与迭代
+**顺序与迭代**
 
 ```js
 const m = new Map([
@@ -1104,7 +1104,7 @@ wm.get(key2);
 wm.get(key3);
 ```
 
-#### 弱键
+**弱键**
 
 ```js
 const wm = new WeakMap();
@@ -1121,9 +1121,47 @@ function removeReference() {
 }
 ```
 
-#### 不可迭代键
+**不可迭代键**
 
- 
 因为`WeakMap`中的键值对任何时候都可能被销毁，所以没有必要提供迭代其键值对的能力。当然，也用不着像`clear()`这样一次性销毁所有的键值的方法。`WeakMap`确实没有这个方法。因为不可能迭代，所以也不可能在不知道对象引用的情况下从弱映射中取值。即便代码可以访问WeakMap实例，也没有办法看到其中的内容。
 
 `WeakMap`实例之所以限制只能用对象作为键，是为了保证只有通过键对象的引用才能取得值。如果允许原始值，那就没有办法区分初始化时使用的字符串字面量和初始化之后使用的一个相等的字符串了。
+
+**使用弱映射**
+
+***1.私有变量***
+私有变量存储在弱映射中，以对象实例为键，以私有成员的字典为值
+
+```js
+const wm = new WeakMap();
+
+class User {
+    constructor(id){
+        this.idProperty = Symbol('id');
+        this.setId(id);
+    }
+
+    setPrivate(property,value){
+        const privateMembers = wm.get(this) || {};
+        privateMembers[property] = value;
+        wm.set(this,privateMembers);
+    }
+
+    getPrivate(property){
+        return wm.get(this)[property];
+    }
+
+    setId(id){
+        this.setPrivate(this.idProperty,id);
+    }
+
+    getId(){
+        return this.getPrivate(this.idProperty);
+    }
+}
+
+const user = new User(123);
+user.getId();
+user.setId(456);
+user.getId();
+```
