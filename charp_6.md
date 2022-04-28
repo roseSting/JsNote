@@ -1123,19 +1123,56 @@ function removeReference() {
 
 **不可迭代键**
 
-因为`WeakMap`中的键值对任何时候都可能被销毁，所以没有必要提供迭代其键值对的能力。当然，也用不着像`clear()`这样一次性销毁所有的键值的方法。`WeakMap`确实没有这个方法。因为不可能迭代，所以也不可能在不知道对象引用的情况下从弱映射中取值。即便代码可以访问WeakMap实例，也没有办法看到其中的内容。
+因为 `WeakMap` 中的键值对任何时候都可能被销毁，所以没有必要提供迭代其键值对的能力。当然，也用不着像 `clear()` 这样一次性销毁所有的键值的方法。 `WeakMap` 确实没有这个方法。因为不可能迭代，所以也不可能在不知道对象引用的情况下从弱映射中取值。即便代码可以访问WeakMap实例，也没有办法看到其中的内容。
 
-`WeakMap`实例之所以限制只能用对象作为键，是为了保证只有通过键对象的引用才能取得值。如果允许原始值，那就没有办法区分初始化时使用的字符串字面量和初始化之后使用的一个相等的字符串了。
+`WeakMap` 实例之所以限制只能用对象作为键，是为了保证只有通过键对象的引用才能取得值。如果允许原始值，那就没有办法区分初始化时使用的字符串字面量和初始化之后使用的一个相等的字符串了。
 
 **使用弱映射**
 
-***1.私有变量***
+***1. 私有变量***
 私有变量存储在弱映射中，以对象实例为键，以私有成员的字典为值
 
 ```js
 const wm = new WeakMap();
 
 class User {
+    constructor(id) {
+        this.idProperty = Symbol('id');
+        this.setId(id);
+    }
+
+    setPrivate(property, value) {
+        const privateMembers = wm.get(this) || {};
+        privateMembers[property] = value;
+        wm.set(this, privateMembers);
+    }
+
+    getPrivate(property) {
+        return wm.get(this)[property];
+    }
+
+    setId(id) {
+        this.setPrivate(this.idProperty, id);
+    }
+
+    getId() {
+        return this.getPrivate(this.idProperty);
+    }
+}
+
+const user = new User(123);
+user.getId();
+user.setId(456);
+user.getId();
+```
+
+```js
+const user = (()=>{
+
+    const wm = new WeakMap();
+
+class User {
+
     constructor(id){
         this.idProperty = Symbol('id');
         this.setId(id);
@@ -1158,10 +1195,12 @@ class User {
     getId(){
         return this.getPrivate(this.idProperty);
     }
-}
 
+}
+return user; 
+})(); 
 const user = new User(123);
-user.getId();
+user.getId();   //123
 user.setId(456);
-user.getId();
+user.getId();   //456
 ```
