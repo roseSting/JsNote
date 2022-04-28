@@ -1213,4 +1213,36 @@ user.getId(); //456
 console.log(wm.get(user)[user.idProperty]); //ReferenceError
 ```
 
+***dom节点元数据***
 
+```js
+const m = new Map();
+const loginButton = document.querySelector('#login');
+
+//给这个节点关联一些元素
+m.set(loginButton, {disabled: true});  //dom节点删除后，由于映射还保存着按钮的引用，所以对应的DOM节点仍然会都留在内存中。除非明确将其从映射中删除或者等到映射本身被销毁。
+
+const m = new WeakMap();
+const loginButton = document.querySelector('#login');
+
+//给这个节点关联一些元素
+wm.set(loginButton, {disabled:true});  //节点从dom树中被删除后，垃圾回收可以立即释放内存
+```
+# set
+
+```js
+const m = new Set();   //创建一个空集合
+
+// 使用数组初始化集合
+const s1 = new Set(["val1","val2","val3"]);
+s1.size;  //3
+
+// 使用自定义迭代初始化集合
+const s2 = new Set({
+    [Symbol.iterator]: function*(){
+        yield "val1";
+        yield "val2";
+        yield "val3";
+    }
+});
+s2.size;  //3
